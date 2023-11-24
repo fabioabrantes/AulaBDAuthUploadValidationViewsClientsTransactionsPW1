@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ImageAssociation {
+  id         String   @id @default(uuid())
+  path       String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  Association   Association @relation(fields: [associationId], references: [id])
+  associationId String
+}
+
+model Association {
+  id         String   @id @default(uuid())
+  name       String
+  latitude   Float
+  longitude  Float
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  images  ImageAssociation[]
+  clients Client[]
+
+  @@map("associations")
+}
+
+model Client {
+  id         String   @id @default(uuid())
+  cpf        String   @unique
+  name       String
+  username   String   @unique
+  password   String
+  latitude   Float
+  longitude  Float
+  imagename  String?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  transactions Transaction[]
+
+  Association   Association @relation(fields: [associationId], references: [id])
+  associationId String
+
+  @@map("clients")
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  type      String
+  amount    Float
+  createdAt DateTime @default(now())
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId String
+
+  @@map("transctions")
+}
